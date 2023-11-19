@@ -1,12 +1,12 @@
 @use './variables' as *;
 html{
     background-color: $dark1;
-    color: $bright;
+    color: $bright2;
   }
   
   .App {
     text-align: center;
-    background-color: $dark2;
+    background-color: $dark1;
 
   }
    

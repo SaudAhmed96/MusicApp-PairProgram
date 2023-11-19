@@ -137,6 +137,7 @@ function App() {
               return (
                 <SongFound
                   key={i}
+                  index = {i}
                   trackId={choice.id}
                   trackName={choice.name}
                   artistId={choice.artists[0].id}
