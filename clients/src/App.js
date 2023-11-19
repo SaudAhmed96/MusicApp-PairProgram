@@ -1,4 +1,4 @@
-import "./App.css";
+import "./styles/App.scss";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import token from "./data/token.json";
