@@ -2,8 +2,8 @@ import "./styles/App.scss";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import token from "./data/token.json";
-import access from "./data/access.json"
-import qs from 'qs';
+import access from "./data/access.json";
+import qs from "qs";
 import SongFound from "./components/SongFound/SongFound";
 import SongQuery from "./components/SongQuery/SongQuery";
 
@@ -12,30 +12,33 @@ const BASE_URL = "https://api.spotify.com/v1/";
 const rec_End = "recommendations";
 const search_End = "search";
 
-
 function App() {
   // const [genre, setGenre] = useState();
   const [searchItem, setSearchItem] = useState("photograph");
   const [choices, setChoices] = useState([]);
   const [queryList, setQueryList] = useState([]);
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [songsSubmitted, setSongsSubmitted] = useState(false);
   const [completeToken, setCompleteToken] = useState("");
 
   useEffect(() => {
     login();
-  }, [])
+  }, []);
 
   useEffect(() => {
     fetchData();
   }, [formSubmitted]);
 
+  useEffect(() => {
+    fetchRec();
+  }, [songsSubmitted]);
 
   // fetches new bearer token
   const login = async () => {
     const headers = {
       headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/x-www-form-urlencoded',
+        Accept: "application/json",
+        "Content-Type": "application/x-www-form-urlencoded",
       },
       auth: {
         username: access.client_id,
@@ -43,22 +46,22 @@ function App() {
       },
     };
     const data = {
-      grant_type: 'client_credentials',
+      grant_type: "client_credentials",
     };
 
     try {
       const response = await axios.post(
-        'https://accounts.spotify.com/api/token',
+        "https://accounts.spotify.com/api/token",
         qs.stringify(data),
         headers
       );
       // console.log(response.data.access_token);
-      setCompleteToken(response.data.access_token)
+      setCompleteToken(response.data.access_token);
       return response.data.access_token;
     } catch (error) {
       console.log(error);
     }
-  }
+  };
 
   function fetchData() {
     //below pulls list of potential genres
@@ -75,47 +78,31 @@ function App() {
           headers: { Authorization: `Bearer  ${completeToken}` },
         })
         .then((res) => {
-          fetchRec(res.data.tracks.items[0].id);
-          //this.setQueryList({ myQuery: [...this.setQueryLis.myQuery, res.data.tracks.items[0].id] }) //simple value
-          setQueryList([...queryList, res.data.tracks.items[0]])
-          console.log(queryList)
+          // fetchRec(res.data.tracks.items[0].id);
+          if (queryList.length < 5) {
+            setQueryList([...queryList, res.data.tracks.items[0]]);
+          } else {
+            alert("You can only select 5 songs, refresh the page");
+          }
         });
     }
-
   }
 
   function songIdString() {
-
+    const songQueryList = queryList.map((song) => {
+      return song.id;
+    });
+    return songQueryList.join(",");
   }
-  function submitQuery() {
 
-  }
+  function fetchRec() {
+    const songQueryItem = songIdString();
+    console.log(songQueryItem);
+    const songId = "1HNkqx9Ahdgi1Ixy2xkKkL";
 
-function displaySongs(){
-  if(queryList){
-    return(
-      <ol>
-      {queryList.map((songQuery, i) => {
-        return (
-          <SongQuery
-            key={i}
-            index={i}
-            trackId={songQuery.id}
-            trackName={songQuery.name}
-            artistId={songQuery.artists[0].id}
-            artistName={songQuery.artists[0].name}
-          />
-        )
-      })}
-    </ol>
-    )
-  }
-}
-
-  function fetchRec(songID) {
     if (completeToken) {
       axios
-        .get(`${BASE_URL}${rec_End}?seed_tracks=${songID}`, {
+        .get(`${BASE_URL}${rec_End}?seed_tracks=${songId}`, {
           headers: { Authorization: `Bearer  ${completeToken}` },
         })
         .then((res) => {
@@ -123,14 +110,30 @@ function displaySongs(){
           setChoices(res.data.tracks);
         });
     }
+  }
 
+  function queryHandler(event) {
+    event.preventDefault();
+    if (queryList.length === 0) {
+      alert("please search some songs first come on");
+      return;
+    } else {
+      setSongsSubmitted(!songsSubmitted);
+      console.log(songsSubmitted);
+    }
   }
 
   function formHandler(event) {
     event.preventDefault();
-    console.log(searchItem);
-    setFormSubmitted(!formSubmitted);
-    console.log(formSubmitted);
+
+    if (event.target[0].value === "") {
+      alert("please input a song in the search bar");
+      return;
+    } else {
+      console.log(searchItem);
+      setFormSubmitted(!formSubmitted);
+      console.log(formSubmitted);
+    }
   }
 
   const handleSearchBar = (event) => {
@@ -161,9 +164,26 @@ function displaySongs(){
       </div>
 
       <section className="track-list">
-        <h1>Song Query</h1>
-        {displaySongs}
-        <button onClick={fetchRec}>Submit</button>
+        <form onSubmit={queryHandler}>
+          <h1>Song Query</h1>
+          {queryList && (
+            <ol>
+              {queryList.map((songQuery, i) => {
+                return (
+                  <SongQuery
+                    key={i}
+                    index={i}
+                    trackId={songQuery.id}
+                    trackName={songQuery.name}
+                    artistId={songQuery.artists[0].id}
+                    artistName={songQuery.artists[0].name}
+                  />
+                );
+              })}
+            </ol>
+          )}
+          <button type="submit">Submit</button>
+        </form>
       </section>
 
       <section className="choices">
@@ -188,7 +208,5 @@ function displaySongs(){
     </div>
   );
 }
-
-
 
 export default App;
