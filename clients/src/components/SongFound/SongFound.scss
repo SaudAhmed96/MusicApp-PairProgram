@@ -1,0 +1,19 @@
+@use '../../styles/variables' as *;
+
+
+.choices__item{
+    border-radius: 5px;
+    &:hover{
+        background-color: $bright1;
+        color:white;
+        cursor: pointer;
+    }
+}
+
+.even{
+background-color: $dark2;
+}
+
+.odd{
+    background-color: $dark3;
+}
