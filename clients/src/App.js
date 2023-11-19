@@ -16,15 +16,13 @@ function App() {
   const [searchItem, setSearchItem] = useState("photograph");
   const [choices, setChoices] = useState([]);
   const [formSubmitted, setFormSubmitted] = useState(false);
-  const [completeToken, setCompleteToken] = useState("");
+  const [completeToken, setCompleteToken] = useState("BQCxsKswfKiyseKBRLfyQPTErvSs8sZw5h6wJiWWuHDZCVPkc-Mlm9dOi3MP6x2_SK0qUDhNhSvLjyF5WN05rtraprZP1V--3wUoQxzfnKQrSZg7Huc");
 
   useEffect(() => {
     fetchData();
   }, [formSubmitted]);
 
   const login = async () => {
-    const clientId = process.env.REACT_APP_BASIC_CLIENT_ID;
-    const clientSecret = process.env.REACT_APP_BASIC_CLIENT_SECRET;
 
     const headers = {
       headers: {
@@ -76,7 +74,7 @@ function App() {
   function fetchRec(songID) {
     axios
       .get(`${BASE_URL}${rec_End}?seed_tracks=${songID}`, {
-        headers: { Authorization: `Bearer  ${token.access_token}` },
+        headers: { Authorization: `Bearer  ${completeToken}` },
       })
       .then((res) => {
         console.log(res.data.tracks);
