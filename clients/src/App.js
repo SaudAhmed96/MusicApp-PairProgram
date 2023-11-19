@@ -4,11 +4,13 @@ import axios from "axios";
 import token from "./data/token.json";
 import access from "./data/access.json"
 import qs from 'qs';
+import SongFound from "./components/SongFound/SongFound";
 
 const BASE_URL = "https://api.spotify.com/v1/";
 // const GENRE_END = "recommendations/available-genre-seeds";
 const rec_End = "recommendations";
 const search_End = "search";
+let loginComplete = false;
 
 
 function App() {
@@ -18,12 +20,19 @@ function App() {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [completeToken, setCompleteToken] = useState("BQCxsKswfKiyseKBRLfyQPTErvSs8sZw5h6wJiWWuHDZCVPkc-Mlm9dOi3MP6x2_SK0qUDhNhSvLjyF5WN05rtraprZP1V--3wUoQxzfnKQrSZg7Huc");
 
+useEffect(() => {
+  login();
+  loginComplete = true;
+}, [])
+
   useEffect(() => {
     fetchData();
   }, [formSubmitted]);
 
-  const login = async () => {
+  
 
+  // fetches new bearer token
+  const login = async () => {
     const headers = {
       headers: {
         Accept: 'application/json',
@@ -61,14 +70,16 @@ function App() {
     //   .then((res) => {
     //     setGenre(res.data.genres);
     //   });
-
-    axios
+    if (loginComplete){
+      axios
       .get(`${BASE_URL}${search_End}?q=${searchItem}&type=track`, {
         headers: { Authorization: `Bearer  ${completeToken}` },
       })
       .then((res) => {
         fetchRec(res.data.tracks.items[0].id);
       });
+    }
+    
   }
 
   function fetchRec(songID) {
@@ -77,7 +88,7 @@ function App() {
         headers: { Authorization: `Bearer  ${completeToken}` },
       })
       .then((res) => {
-        console.log(res.data.tracks);
+        // console.log(res.data.tracks);
         setChoices(res.data.tracks);
       });
   }
@@ -124,16 +135,13 @@ function App() {
           {choices.map((choice, i) => {
             if (i < 10) {
               return (
-                <>
-                  <li key={choice.id} className="choices__item">
-                    <p id={choice.id} className="choices__song">
-                      <b>Song:</b> {choice.name},
-                    </p>
-                    <p id={choice.artists[0].id} className="choices__artist">
-                      <b>Artist:</b> {choice.artists[0].name}
-                    </p>
-                  </li>
-                </>
+                <SongFound
+                  key = {i}
+                  trackId = {choice.id}
+                  trackName = {choice.name}
+                  artistId = {choice.artists[0].id}
+                  artistName = {choice.artists[0].name}
+                />
               );
             }
           })}
@@ -142,5 +150,7 @@ function App() {
     </div>
   );
 }
+
+
 
 export default App;
