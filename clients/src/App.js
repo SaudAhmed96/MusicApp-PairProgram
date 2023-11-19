@@ -5,6 +5,7 @@ import token from "./data/token.json";
 import access from "./data/access.json"
 import qs from 'qs';
 import SongFound from "./components/SongFound/SongFound";
+import SongQuery from "./components/SongQuery/SongQuery";
 
 const BASE_URL = "https://api.spotify.com/v1/";
 // const GENRE_END = "recommendations/available-genre-seeds";
@@ -16,6 +17,7 @@ function App() {
   // const [genre, setGenre] = useState();
   const [searchItem, setSearchItem] = useState("photograph");
   const [choices, setChoices] = useState([]);
+  const [queryList, setQueryList] = useState([]);
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [completeToken, setCompleteToken] = useState("");
 
@@ -50,7 +52,7 @@ function App() {
         qs.stringify(data),
         headers
       );
-      console.log(response.data.access_token);
+      // console.log(response.data.access_token);
       setCompleteToken(response.data.access_token)
       return response.data.access_token;
     } catch (error) {
@@ -74,10 +76,41 @@ function App() {
         })
         .then((res) => {
           fetchRec(res.data.tracks.items[0].id);
+          //this.setQueryList({ myQuery: [...this.setQueryLis.myQuery, res.data.tracks.items[0].id] }) //simple value
+          setQueryList([...queryList, res.data.tracks.items[0]])
+          console.log(queryList)
         });
     }
 
   }
+
+  function songIdString() {
+
+  }
+  function submitQuery() {
+
+  }
+
+function displaySongs(){
+  if(queryList){
+    return(
+      <ol>
+      {queryList.map((songQuery, i) => {
+        return (
+          <SongQuery
+            key={i}
+            index={i}
+            trackId={songQuery.id}
+            trackName={songQuery.name}
+            artistId={songQuery.artists[0].id}
+            artistName={songQuery.artists[0].name}
+          />
+        )
+      })}
+    </ol>
+    )
+  }
+}
 
   function fetchRec(songID) {
     if (completeToken) {
@@ -108,9 +141,6 @@ function App() {
     <div className="App">
       <header className="nav">
         <h1 className="nav__title">SongFinder</h1>
-        <button onClick={login} className="nav__button">
-          Login
-        </button>
       </header>
 
       <div className="main">
@@ -125,19 +155,26 @@ function App() {
             />
           </div>
           <button className="main__button" type="submit">
-            Submit
+            +
           </button>
         </form>
       </div>
 
-      <div className="choices">
+      <section className="track-list">
+        <h1>Song Query</h1>
+        {displaySongs}
+        <button onClick={fetchRec}>Submit</button>
+      </section>
+
+      <section className="choices">
+        <h1>Song Recommendations</h1>
         <ol className="choices__list">
           {choices.map((choice, i) => {
-            if (i < 10) {
+            if (i < 5) {
               return (
                 <SongFound
                   key={i}
-                  index = {i}
+                  index={i}
                   trackId={choice.id}
                   trackName={choice.name}
                   artistId={choice.artists[0].id}
@@ -147,7 +184,7 @@ function App() {
             }
           })}
         </ol>
-      </div>
+      </section>
     </div>
   );
 }

@@ -1,12 +1,13 @@
-import "./SongFound.scss"
+import "./SongQuery.scss"
 
-function SongFound(props) {
+function SongQuery(props) {
 let backgroundStyle = "";
 if(props.index % 2 ==0){
     backgroundStyle = "even";
 } else {
     backgroundStyle = "odd";
 }
+console.log("props: ", props)
 
     return (
         <section className="choices">
@@ -21,4 +22,4 @@ if(props.index % 2 ==0){
         </section>
     );
 }
-export default SongFound
+export default SongQuery
