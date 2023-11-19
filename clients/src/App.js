@@ -10,7 +10,6 @@ const BASE_URL = "https://api.spotify.com/v1/";
 // const GENRE_END = "recommendations/available-genre-seeds";
 const rec_End = "recommendations";
 const search_End = "search";
-let loginComplete = false;
 
 
 function App() {
@@ -18,18 +17,16 @@ function App() {
   const [searchItem, setSearchItem] = useState("photograph");
   const [choices, setChoices] = useState([]);
   const [formSubmitted, setFormSubmitted] = useState(false);
-  const [completeToken, setCompleteToken] = useState("BQCxsKswfKiyseKBRLfyQPTErvSs8sZw5h6wJiWWuHDZCVPkc-Mlm9dOi3MP6x2_SK0qUDhNhSvLjyF5WN05rtraprZP1V--3wUoQxzfnKQrSZg7Huc");
+  const [completeToken, setCompleteToken] = useState("");
 
-useEffect(() => {
-  login();
-  loginComplete = true;
-}, [])
+  useEffect(() => {
+    login();
+  }, [])
 
   useEffect(() => {
     fetchData();
   }, [formSubmitted]);
 
-  
 
   // fetches new bearer token
   const login = async () => {
@@ -70,27 +67,30 @@ useEffect(() => {
     //   .then((res) => {
     //     setGenre(res.data.genres);
     //   });
-    if (loginComplete){
+    if (completeToken) {
       axios
-      .get(`${BASE_URL}${search_End}?q=${searchItem}&type=track`, {
-        headers: { Authorization: `Bearer  ${completeToken}` },
-      })
-      .then((res) => {
-        fetchRec(res.data.tracks.items[0].id);
-      });
+        .get(`${BASE_URL}${search_End}?q=${searchItem}&type=track`, {
+          headers: { Authorization: `Bearer  ${completeToken}` },
+        })
+        .then((res) => {
+          fetchRec(res.data.tracks.items[0].id);
+        });
     }
-    
+
   }
 
   function fetchRec(songID) {
-    axios
-      .get(`${BASE_URL}${rec_End}?seed_tracks=${songID}`, {
-        headers: { Authorization: `Bearer  ${completeToken}` },
-      })
-      .then((res) => {
-        // console.log(res.data.tracks);
-        setChoices(res.data.tracks);
-      });
+    if (completeToken) {
+      axios
+        .get(`${BASE_URL}${rec_End}?seed_tracks=${songID}`, {
+          headers: { Authorization: `Bearer  ${completeToken}` },
+        })
+        .then((res) => {
+          // console.log(res.data.tracks);
+          setChoices(res.data.tracks);
+        });
+    }
+
   }
 
   function formHandler(event) {
@@ -136,11 +136,11 @@ useEffect(() => {
             if (i < 10) {
               return (
                 <SongFound
-                  key = {i}
-                  trackId = {choice.id}
-                  trackName = {choice.name}
-                  artistId = {choice.artists[0].id}
-                  artistName = {choice.artists[0].name}
+                  key={i}
+                  trackId={choice.id}
+                  trackName={choice.name}
+                  artistId={choice.artists[0].id}
+                  artistName={choice.artists[0].name}
                 />
               );
             }

@@ -4,7 +4,7 @@ function SongFound(props) {
 
     return (
         <section>
-            <li key={props.key} className="choices__item">
+            <li className="choices__item">
                 <p id={props.trackId} className="choices__song">
                     <b>Song:</b> {props.trackName},
                 </p>
